@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Project Logs and Outputs
+logs/*.log
+outputs/images/*.jpg
+outputs/images/*.png
+outputs/videos/*.mp4
+outputs/videos/*.avi
+
+# Models
+models/*.pt
+!models/yolov8n.pt
+
+# System
+.DS_Store
