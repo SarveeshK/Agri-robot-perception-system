@@ -1,4 +1,4 @@
-# AgriVision Perception System
+# Agro-Robot Perception System
 
 A modular, real-time perception system designed for an autonomous agricultural robot (Phase 1). This pipeline integrates Intel RealSense D456 streams and YOLOv8 object detection to provide robust real-world 3D object measurements and obstacle collision warnings.
 
