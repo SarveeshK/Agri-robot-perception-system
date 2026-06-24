@@ -1,3 +1,6 @@
+"""
+Module for object detection using YOLOv8 models.
+"""
 import torch
 from ultralytics import YOLO
 from src.utils.logger import get_logger
@@ -11,6 +14,9 @@ class YoloDetector:
     Filters out predictions based on confidence and allowed classes.
     """
     def __init__(self):
+        """
+        Initializes the YOLO model with configuration settings.
+        """
         yolo_conf = settings.yolo
         self.model_path = yolo_conf.get("model_path", "models/yolov8n.pt")
         self.confidence_thresh = yolo_conf.get("confidence", 0.60)
@@ -23,8 +29,13 @@ class YoloDetector:
     def detect(self, color_image):
         """
         Runs inference and returns filtered bounding boxes.
-        Returns a list of dicts:
-        [{'class_name': str, 'class_id': int, 'confidence': float, 'box': (x1, y1, x2, y2)}, ...]
+        
+        Args:
+            color_image (numpy.ndarray): The RGB image frame.
+            
+        Returns:
+            list[dict]: A list of detections, where each detection is a dictionary
+            containing 'class_name', 'class_id', 'confidence', and 'box' (x1, y1, x2, y2).
         """
         # Inference (with torch.inference_mode for speed)
         with torch.inference_mode():

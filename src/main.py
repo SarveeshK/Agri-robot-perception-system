@@ -20,16 +20,24 @@ def main():
     profiler = Profiler()
     
     # Initialize Camera Modules
-    camera = RealSenseManager()
-    camera.start()
-    aligner = FrameAligner()
-    calibration = CameraCalibration()
+    try:
+        camera = RealSenseManager()
+        camera.start()
+        aligner = FrameAligner()
+        calibration = CameraCalibration()
+    except Exception as e:
+        logger.error(f"Failed to initialize camera modules: {e}")
+        return 1
     
     # Initialize Perception Modules
-    detector = YoloDetector()
-    depth_proc = DepthProcessor()
-    measurer = ObjectMeasurement(calibration)
-    visualizer = Visualizer()
+    try:
+        detector = YoloDetector()
+        depth_proc = DepthProcessor()
+        measurer = ObjectMeasurement(calibration)
+        visualizer = Visualizer()
+    except Exception as e:
+        logger.error(f"Failed to load YOLO or perception modules: {e}")
+        return 1
     
     try:
         while True:
@@ -93,7 +101,11 @@ def main():
     except Exception as e:
         logger.error(f"Pipeline crashed: {e}", exc_info=True)
     finally:
-        camera.stop()
+        if 'camera' in locals():
+            try:
+                camera.stop()
+            except:
+                pass
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":

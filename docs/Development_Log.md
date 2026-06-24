@@ -1,19 +1,35 @@
 # Development Log
 
-## Sprint 1: Camera Integration (Completed)
-- Initialize RealSense D456
-- Capture RGB and Depth
-- Align Frames
+## Sprint 1: RealSense Integration
+- [x] Frame capture working
+- [x] RGB-Depth alignment
+- [x] Intrinsics extraction
+- [x] Filters working (spatial, temporal)
 
-## Sprint 2: YOLO Integration (Completed)
-- Load YOLOv8n
-- Detect Objects and filter by confidence
+## Sprint 2: YOLOv8 Integration
+- [x] Model loading
+- [x] Inference working
+- [x] GPU warmup
+- [x] Confidence filtering
 
-## Sprint 3: Object Measurement (Completed)
-- Use camera intrinsics to compute 3D Distance, Width, and Height.
+## Sprint 3: Measurement
+- [x] Distance calculation
+- [x] Width measurement
+- [x] Height measurement
+- [x] Accuracy validation
 
-## Sprint 4: Depth Optimization (Completed)
-- Implement close-range depth optimizations.
-- Extract robust depth using center ROI and median filters.
-- Implement post-processing pipeline.
-- Implement whole-frame sudden obstacle detection.
+## Sprint 4: Camera Optimization (Current)
+- [ ] Close-range detection testing
+- [ ] Depth accuracy at different distances
+- [ ] Latency profiling
+- [ ] FPS optimization
+
+### Issues & Findings
+- Issue #1: Depth invalid below 30cm → need disparity shift
+- Finding #1: Close objects have lower confidence
+- Optimization #1: Reduced temporal smoothing → faster response
+
+### Next Steps
+- Test with real obstacles
+- Measure distance accuracy at 10cm, 30cm, 50cm, 100cm
+- Document optimal settings

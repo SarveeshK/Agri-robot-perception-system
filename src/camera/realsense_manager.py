@@ -11,6 +11,9 @@ class RealSenseManager:
     and post-processing filters.
     """
     def __init__(self):
+        """
+        Initialize the RealSense Manager and configure data streams.
+        """
         self.pipeline = rs.pipeline()
         self.config = rs.config()
         self.profile = None
@@ -28,6 +31,9 @@ class RealSenseManager:
         logger.info(f"Configured streams: RGB {w}x{h} @ {fps}fps, Depth {w}x{h} @ {fps}fps")
 
     def start(self):
+        """
+        Start the RealSense pipeline and apply advanced settings and filters.
+        """
         try:
             self.profile = self.pipeline.start(self.config)
             self.depth_sensor = self.profile.get_device().first_depth_sensor()
@@ -99,6 +105,12 @@ class RealSenseManager:
         logger.info(f"Initialized {len(self.filters)} post-processing filters: {[name for name, _ in self.filters]}")
 
     def get_frames(self):
+        """
+        Wait for and retrieve a set of frames from the camera.
+        
+        Returns:
+            rs.composite_frame or None: The captured frames if successful, None otherwise.
+        """
         try:
             frames = self.pipeline.wait_for_frames()
             return frames
@@ -107,6 +119,15 @@ class RealSenseManager:
             return None
 
     def apply_filters(self, depth_frame):
+        """
+        Apply configured post-processing filters to the given depth frame.
+        
+        Args:
+            depth_frame: The original depth frame.
+            
+        Returns:
+            The filtered depth frame.
+        """
         filtered_depth = depth_frame
         for name, filter_obj in self.filters:
             try:
@@ -116,6 +137,9 @@ class RealSenseManager:
         return filtered_depth
 
     def stop(self):
+        """
+        Stop the RealSense pipeline and release resources.
+        """
         try:
             self.pipeline.stop()
             logger.info("RealSense pipeline stopped.")

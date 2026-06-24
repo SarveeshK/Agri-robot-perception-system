@@ -1,3 +1,6 @@
+"""
+Module for rendering HUD and overlays on the camera feed.
+"""
 import cv2
 from src.utils.config import settings
 
@@ -6,13 +9,23 @@ class Visualizer:
     Renders bounding boxes, measurements, FPS, and collision warnings.
     """
     def __init__(self):
+        """
+        Initializes visualizer with settings from configuration.
+        """
         self.show_fps = settings.visualization.get("show_fps", True)
         self.safety_distance_cm = settings.obstacle.get("safety_distance_cm", 50.0)
 
     def draw(self, image, detections, fps=None):
         """
-        Draws overlays on the image. Detections must include 'measurement' key
-        with (distance_cm, width_cm, height_cm)
+        Draws bounding boxes, labels, and HUD overlays on the image.
+        
+        Args:
+            image (numpy.ndarray): The RGB image frame to draw on.
+            detections (list[dict]): Detections containing bounding boxes and optional measurements.
+            fps (float, optional): The current frames per second to display.
+            
+        Returns:
+            numpy.ndarray: The image with all visual overlays.
         """
         collision_warning = False
         nearest_distance = float('inf')
@@ -60,6 +73,16 @@ class Visualizer:
         return image
 
     def _draw_hud(self, image, nearest_class, nearest_distance, collision_warning, fps):
+        """
+        Helper method to draw the Global HUD panel.
+        
+        Args:
+            image (numpy.ndarray): The image frame.
+            nearest_class (str): Class name of the nearest object.
+            nearest_distance (float): Distance to the nearest object in cm.
+            collision_warning (bool): Whether a collision warning should be displayed.
+            fps (float): Current FPS to display.
+        """
         panel_color = (255, 255, 255)
         
         if fps and self.show_fps:
