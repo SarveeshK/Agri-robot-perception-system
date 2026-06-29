@@ -10,17 +10,20 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+testenv/
 
 # Project Logs and Outputs
-logs/*.log
-outputs/images/*.jpg
-outputs/images/*.png
-outputs/videos/*.mp4
-outputs/videos/*.avi
+logs/
+outputs/
+runs/
+
+# Datasets
+datasets/
 
 # Models
-models/*.pt
-!models/yolov8n.pt
+models/**/*.pt
+!models/pretrained/yolov8n.pt
+yolo*.pt
 
 # System
 .DS_Store

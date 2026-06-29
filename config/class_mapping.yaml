@@ -1,0 +1,10 @@
+public_dataset:
+  Tree: tree
+  Rock: rock
+  Plant: plant
+
+production_dataset:
+  tree: 0
+  rock: 1
+  weed: 2
+  small_stone: 3

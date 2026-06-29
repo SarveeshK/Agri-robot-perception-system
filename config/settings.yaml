@@ -27,18 +27,18 @@ camera:
       mode: 1                # 0: fill from left, 1: farest from around, 2: nearest from around
 
 yolo:
-  model_path: "models/yolov8n.pt"
+  model_path: "models/pretrained/yolov8n.pt"
   confidence: 0.60
   # Agricultural & Obstacle Classes (COCO IDs):
   # Humans/Vehicles: 0 (person), 2 (car), 7 (truck)
   # Animals: 15 (bird), 16 (cat), 17 (dog), 18 (horse), 19 (sheep), 20 (cow), 22 (bear)
-  # Agriculture: 58 (potted plant)
+  # Crops/Plants: 46 (banana), 47 (apple), 49 (orange), 50 (broccoli), 51 (carrot), 58 (potted plant)
   # Desk Testing: 39 (bottle), 41 (cup), 63 (laptop), 67 (cell phone)
-  allowed_classes: [0, 2, 7, 15, 16, 17, 18, 19, 20, 22, 39, 41, 58, 63, 67]
+  allowed_classes: [0, 2, 7, 15, 16, 17, 18, 19, 20, 22, 39, 41, 46, 47, 49, 50, 51, 58, 63, 67]
 
 measurement:
   sampling_roi_ratio: 0.5    # Use the central 50% of the bounding box to sample depth (avoids edge bleed)
-  depth_percentile: 10       # Use the 10th percentile of valid depth samples to find the closest point
+  depth_percentile: 50       # Changed from 10 to 50: Use the median of valid depth samples to find the object body
   smoothing_alpha: 0.3       # Exponential moving average for size/distance temporal smoothing
   min_valid_samples: 5       # Minimum valid depth pixels required to output a measurement
 
