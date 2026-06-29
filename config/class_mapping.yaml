@@ -1,7 +1,6 @@
-public_dataset:
-  Tree: tree
-  Rock: rock
-  Plant: plant
+foundation_dataset:
+  Tree: 0
+  Plant: 1
 
 production_dataset:
   tree: 0

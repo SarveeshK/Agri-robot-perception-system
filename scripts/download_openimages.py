@@ -8,7 +8,7 @@ def download_data():
     with open('config/class_mapping.yaml', 'r') as f:
         mapping = yaml.safe_load(f)
     
-    classes_to_download = list(mapping['public_dataset'].keys())
+    classes_to_download = list(mapping['foundation_dataset'].keys())
     
     output_dir = os.path.abspath("datasets/raw/openimages")
     os.makedirs(output_dir, exist_ok=True)
@@ -20,7 +20,7 @@ def download_data():
         split="train", # using train split as it's best practice for building datasets
         label_types=["detections"],
         classes=classes_to_download,
-        max_samples=15, # roughly 5-10 per class since images might have multiple
+        max_samples=60, # increased from 15 to 60 for a slightly more robust foundation model
         dataset_name="agri-robot-openimages"
     )
     

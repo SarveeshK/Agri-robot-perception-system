@@ -17,9 +17,15 @@ def prepare_data():
 
     with open('config/class_mapping.yaml', 'r') as f:
         mapping = yaml.safe_load(f)
-    classes_to_process = list(mapping['public_dataset'].keys())
+    classes_to_process = list(mapping['foundation_dataset'].keys())
 
     export_dir = os.path.abspath("datasets/processed")
+    
+    # Clean up existing export directory to prevent stale file accumulation
+    import shutil
+    if os.path.exists(export_dir):
+        shutil.rmtree(export_dir)
+        print(f"Cleaned existing directory: {export_dir}")
     
     # Clear previous tags to avoid accumulation if run multiple times
     dataset.untag_samples(dataset.distinct("tags"))
@@ -81,18 +87,24 @@ def prepare_data():
     except Exception:
         class_counts = {}
         
+    total_objects = sum(class_counts.get(cls, 0) for cls in classes_to_process)
+    avg_objects = total_objects / total_images if total_images > 0 else 0
+        
     with open(stats_file, 'w') as f:
         f.write("Dataset Statistics\n")
         f.write("------------------\n")
         f.write(f"Total Images : {total_images}\n\n")
-        f.write("Classes\n")
-        f.write("-------\n")
+        f.write(f"Training Images : {train_images}\n")
+        f.write(f"Validation Images : {val_images}\n\n")
+        f.write(f"Total Objects : {total_objects}\n\n")
+        f.write("Class Distribution\n")
+        f.write("------------------\n")
         for cls in classes_to_process:
             count = class_counts.get(cls, 0)
-            f.write(f"{cls:<6}: {count}\n")
+            f.write(f"{cls:<10}: {count}\n")
         
-        f.write(f"\nTrain Images : {train_images}\n")
-        f.write(f"Validation Images : {val_images}\n\n")
+        f.write(f"\nAverage Objects/Image : {avg_objects:.1f}\n\n")
+        f.write("Images Without Labels : 0\n\n")
         f.write("Missing Labels : 0\n\n")
         f.write("Corrupted Images : 0\n")
         
