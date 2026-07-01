@@ -1,69 +1,104 @@
-# AgriVision Perception System: Comprehensive Project Report
+# AgriVision Perception System: Comprehensive Technical Report
 
 **Date:** July 2026  
-**Project Objective:** To develop a robust, modular, and AI-driven 3D perception and obstacle avoidance system for an agricultural robot operating in a plantation environment (e.g., coconut tree plantations).
+**Project Objective:** To architect and develop a robust, modular, and AI-driven 3D perception and obstacle avoidance system for an autonomous agricultural robot operating in complex plantation environments (e.g., coconut tree plantations).
 
 ---
 
-## Executive Summary
-The AgriVision Perception System has been successfully developed through two major architectural phases. The project integrates physical hardware (Intel RealSense D456) with state-of-the-art deep learning (YOLOv8) to provide the robot with real-time spatial awareness. 
+## 1. Executive Summary
+The AgriVision Perception System has been engineered over two major architectural phases. The project successfully fuses physical depth-sensing hardware (Intel RealSense D456) with state-of-the-art Deep Learning (YOLOv8) to provide the robot with real-time 3D spatial awareness. 
 
-Rather than relying on black-box, monolithic scripts, the system was engineered using professional Machine Learning Operations (MLOps) principles, ensuring that everything from camera calibration to dataset formatting and model training is modular, configurable, and ready for production deployment.
-
----
-
-## Phase 1: The Inference System (Hardware & Perception)
-**Goal:** Build the software necessary for the robot to "see" the world, measure distances, and prevent collisions in real-time.
-
-### 1. Hardware Integration
-- **Intel RealSense D456 Configuration:** Integrated the depth camera using the `pyrealsense2` library. 
-- **Frame Alignment:** Built a custom `FrameAligner` to mathematically synchronize the RGB (color) video feed with the Depth video feed, ensuring that an object detected in the 2D image perfectly correlates to its 3D distance data.
-- **Advanced Post-Processing:** Implemented spatial, temporal, and hole-filling filters to smooth out depth noise and improve accuracy at long ranges.
-
-### 2. The AI Perception Pipeline
-- **YOLOv8 Object Detection:** Integrated the Ultralytics YOLOv8 inference engine (`yolov8n.pt`) to draw bounding boxes around obstacles (trees, plants, people, etc.) in the color frame.
-- **3D Spatial Measurement:** Developed a highly robust `DepthProcessor`. Instead of just reading a single pixel of depth (which is prone to errors), it extracts the central 50% of the object's bounding box and calculates the median valid depth to output highly accurate distances in centimeters.
-- **Width/Height Estimation:** Using the camera's intrinsics (focal length), the system calculates the physical width and height of the detected obstacle in centimeters.
-
-### 3. Safety & Visualization
-- **Obstacle Warning System:** Implemented a global safety constraint in `config/settings.yaml`. If any object breaches the `safety_distance_cm` threshold, the UI triggers a critical warning for the robot navigation system.
-- **Dynamic HUD:** Built a visualizer that renders bounding boxes, class names, FPS, and 3D measurements directly onto the live camera feed for easy debugging.
+Crucially, the system abandons monolithic scripting in favor of professional Object-Oriented Programming (OOP) and Machine Learning Operations (MLOps) principles. The architecture is highly decoupled, configuration-driven, and designed for immediate scalability from a local development laptop to a high-performance production Linux server.
 
 ---
 
-## Phase 2: Dataset Engineering & MLOps (Model Training)
-**Goal:** Build a complete, localized Machine Learning pipeline to train the robot's brain to recognize specific agricultural obstacles (coconut trees, weeds, rocks) instead of generic internet objects.
+## 2. Technical Stack & Libraries
+The system relies on a strictly version-controlled Python environment to ensure deterministic behavior across platforms.
 
-### 1. Automated Data Acquisition
-- Integrated **FiftyOne**, an open-source dataset management tool.
-- Developed `scripts/download_openimages.py` to programmatically download thousands of specific images (e.g., "Tree", "Plant") from the massive Open Images V7 database without requiring manual web scraping.
-
-### 2. Dataset Preparation & Formatting
-- Built `scripts/prepare_dataset.py` to parse the raw FiftyOne database and automatically partition the images into an 80% Training Split and a 20% Validation Split.
-- The script automatically converts the images and labels into the strict folder structure required by YOLOv8 and generates the critical `data.yaml` mapping file.
-- **Dataset Statistics Engine:** Added an automated reporting feature that outputs `dataset_statistics.txt`, calculating the total objects, average objects per image, and class distributions to guarantee dataset health before training.
-
-### 3. Model Fine-Tuning (Transfer Learning)
-- Developed `scripts/train_model.py` to perform **Transfer Learning**. Rather than training a neural network from scratch, the script loads the pre-trained `yolov8n.pt` foundation and fine-tunes its weights exclusively on the new agricultural dataset.
-- The pipeline tracks hyperparameters (saved in `training_config.yaml`) to ensure every experiment is reproducible.
-
-### 4. Evaluation and Deployment
-- **Model Evaluation (`evaluate_model.py`):** Calculates Precision, Recall, and mAP (Mean Average Precision) against the validation set to mathematically prove the model's intelligence.
-- **Safe Export (`export_model.py`):** Automatically isolates the highest-performing model (`best.pt`) and promotes it to the `models/trained/` directory for live production use in Phase 1.
+| Component | Library | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Hardware SDK** | `pyrealsense2` | `2.58.2.10647` | Directly interfaces with the Intel RealSense depth camera, managing streams, alignment, and hardware filters. |
+| **Computer Vision** | `opencv-python` | `4.13.0.92` | Core image processing matrix operations, real-time bounding box rendering, and HUD (Heads-Up Display) generation. |
+| **Matrix Math** | `numpy` | `2.4.6` | High-performance array manipulation, crucial for depth extraction and bounding box slicing. |
+| **Deep Learning** | `ultralytics` | `8.4.69` | The backbone AI framework providing the YOLOv8 neural network architecture for object detection and transfer learning. |
+| **Data Engineering**| `fiftyone` | `0.23.8` | Open-source dataset management API used to programmatically query, download, and format the Open Images V7 database. |
+| **Configuration** | `PyYAML` | `6.0.3` | Parses `settings.yaml` and `class_mapping.yaml`, allowing non-programmatic modification of system parameters. |
 
 ---
 
-## Configuration & Architecture Standards
-To ensure the codebase scales effectively when the company's proprietary dataset is introduced, strict software engineering standards were enforced:
-1. **No Hardcoding:** Classes and parameters are managed in `config/class_mapping.yaml` and `config/settings.yaml`.
-2. **Label Noise Prevention:** By mapping public classes (like generic "Plant") to internal IDs, the system ensures that future annotations don't break the model's logic.
-3. **Comprehensive Documentation:** Generated Standard Operating Procedures (SOPs) for data collection and annotation (`docs/Phase2/`) to ensure the company's future dataset is meticulously structured.
+## 3. System Architecture & Directory Structure
+The repository is structured to strictly separate runtime inference (`src/`), machine learning pipelines (`scripts/`), configuration (`config/`), and artifacts (`models/`, `datasets/`).
+
+```text
+Agri-robot-perception-system/
+├── config/                 # Centralized configuration (No hardcoded values)
+│   ├── class_mapping.yaml  # Maps raw dataset classes to internal system IDs
+│   └── settings.yaml       # Controls camera intrinsics, YOLO confidence, and safety logic
+├── datasets/               # Local data lake
+│   ├── processed/          # YOLO-formatted data (images/, labels/, data.yaml)
+│   └── raw/                # Raw FiftyOne downloads and future proprietary images
+├── docs/                   # System documentation and Standard Operating Procedures (SOPs)
+│   ├── Phase1/             # RealSense & Inference documentation
+│   └── Phase2/             # MLOps, Annotation, and Training guides
+├── models/                 # Model registry
+│   ├── pretrained/         # Foundation models (yolov8n.pt)
+│   └── trained/            # Production-ready fine-tuned models (best.pt)
+├── scripts/                # Phase 2: MLOps Pipeline Scripts (Download -> Train -> Export)
+└── src/                    # Phase 1: Real-time Robot Inference Engine
+    ├── camera/             # Hardware interfacing (RealSenseManager, FrameAligner)
+    ├── perception/         # AI & Math (YoloDetector, DepthProcessor, ObjectMeasurement)
+    ├── utils/              # System utilities (Logger, FPS Profiler)
+    └── main.py             # The primary entry point connecting Camera to Perception
+```
 
 ---
 
-## Next Steps (Phase 3)
-The system is now fully verified and operational. The upcoming Phase 3 will involve:
-1. Receiving the proprietary company dataset from the actual plantation.
-2. Running the images through the Phase 2 MLOps pipeline.
-3. Fine-tuning the final production model.
-4. Deploying the model onto the physical robot hardware for real-world RealSense navigation testing.
+## 4. Phase 1: The Inference Engine (Hardware & Perception)
+**Goal:** Build the runtime software necessary for the robot to "see" the world, measure physical distances, and prevent collisions in real-time (`src/`).
+
+### 4.1 Hardware Integration (`src/camera/`)
+- **Intel RealSense D456 Configuration:** Managed by `RealSenseManager`. Initializes RGB and Depth streams at 640x480 @ 30 FPS.
+- **Hardware Frame Alignment:** The depth sensor and RGB sensor are physically offset. `FrameAligner` mathematically projects the 3D depth point cloud onto the 2D color image plane, ensuring perfect spatial synchronization.
+- **Advanced Post-Processing:** Applies a cascade of hardware-accelerated filters (Spatial, Temporal, and Hole-Filling) to smooth depth noise, particularly for distant or highly reflective agricultural surfaces.
+
+### 4.2 The AI Perception Pipeline (`src/perception/`)
+- **YOLOv8 Object Detection:** `YoloDetector` loads the neural network weights into memory. It analyzes the aligned RGB frame and returns bounding boxes, class IDs, and confidence scores for detected obstacles.
+- **Robust 3D Spatial Measurement:** `DepthProcessor` isolates the bounding box coordinates on the Depth frame. To prevent edge-bleed (where the depth sensor reads the background behind a tree instead of the tree itself), it extracts only the **central 50% ROI (Region of Interest)**. It then calculates the median valid depth to output a highly accurate distance in centimeters.
+- **Physical Size Estimation:** `ObjectMeasurement` utilizes the camera's dynamically calculated intrinsics (focal length and principal point) to convert the 2D bounding box pixels and 3D depth into physical real-world Width and Height (in cm).
+
+### 4.3 Safety Logic & Visualization
+- **Obstacle Warning System:** If any measured object breaches the `safety_distance_cm` threshold defined in `config/settings.yaml`, the system triggers a global navigation warning.
+- **Dynamic HUD:** `Visualizer` renders the bounding boxes, class names, 3D measurements (Distance, WxH), and FPS metrics directly onto a low-latency live video feed.
+
+---
+
+## 5. Phase 2: Dataset Engineering & MLOps (Model Training)
+**Goal:** Build a complete, localized Machine Learning Operations pipeline to transition the robot's brain from recognizing generic internet objects to specific agricultural obstacles (coconut trees, weeds, etc.) (`scripts/`).
+
+### 5.1 Automated Data Acquisition (`download_openimages.py`)
+- Replaces manual web scraping by utilizing the `fiftyone` API to securely connect to the Open Images V7 database.
+- Dynamically reads `config/class_mapping.yaml` to request exactly 60 samples of specific target classes (`Tree`, `Plant`), establishing a persistent, local data lake.
+
+### 5.2 Dataset Preparation & Formatting (`prepare_dataset.py`)
+- Automatically parses the FiftyOne database and implements an 80/20 random split (Train/Validation).
+- Safely wipes stale directories (`datasets/processed/`) to prevent data contamination.
+- Converts bounding boxes from absolute coordinates to the normalized center-x/center-y format required by YOLO.
+- **Dataset Statistics Engine:** Generates a comprehensive `outputs/dataset_statistics.txt` report detailing total images, total objects, object density (Average Objects/Image), and class distributions to guarantee dataset health prior to neural network training.
+
+### 5.3 Model Fine-Tuning / Transfer Learning (`train_model.py`)
+- Implements Transfer Learning via the `ultralytics` API. Instead of randomly initializing weights (training from scratch), the script loads the pre-trained `yolov8n.pt` foundation model.
+- Fine-tunes the network on the custom dataset for a specified number of epochs, intelligently adjusting its deeper layers to recognize agricultural patterns.
+- Serializes training hyperparameters to `outputs/train/training_config.yaml` to ensure absolute experimental reproducibility.
+
+### 5.4 Evaluation and Deployment (`evaluate_model.py` & `export_model.py`)
+- **Mathematical Evaluation:** Runs the trained model against the unseen Validation dataset, calculating Precision, Recall, and mAP (Mean Average Precision).
+- **Deployment:** The exporter isolates the highest-performing iteration (`best.pt`) and safely promotes it from the messy experimental output directory to the locked `models/trained/` production registry.
+
+---
+
+## 6. Next Steps (Phase 3: Production Training)
+The architecture is now fully verified and operational. The upcoming Phase 3 will involve:
+1. Transferring the MLOps pipeline to a high-performance Linux server.
+2. Ingesting the proprietary company dataset representing the true coconut plantation environment.
+3. Executing the complete Phase 2 pipeline to fine-tune the final production model.
+4. Deploying the resulting model onto the physical robot hardware for real-world RealSense navigation testing.
