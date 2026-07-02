@@ -149,6 +149,235 @@ During fine-tuning, the model gradually adapts its learned weights to recognize 
 
 ---
 
+# 3.1 How YOLO Learns
+
+During training, the YOLOv8 model learns to detect agricultural objects by comparing its predictions with the annotated ground truth labels.
+
+For every training image, the following sequence occurs:
+
+1. The RGB image is resized and passed into the YOLOv8 neural network.
+2. The network predicts:
+   * Object Classes
+   * Bounding Boxes
+   * Confidence Scores
+3. These predictions are compared against the ground truth annotations.
+4. The prediction error (Loss) is calculated.
+5. The optimizer updates the network weights using backpropagation.
+6. This process repeats for every image in the dataset across multiple training epochs.
+
+Each iteration gradually improves the model's ability to recognize agricultural obstacles.
+
+```text
+Input Image
+      │
+      ▼
+YOLOv8 Neural Network
+      │
+      ▼
+Predicted Objects
+      │
+      ▼
+Ground Truth Comparison
+      │
+      ▼
+Loss Calculation
+      │
+      ▼
+Weight Update
+      │
+      ▼
+Improved Model
+```
+
+---
+
+# 3.2 Training Components
+
+The YOLOv8 training process consists of several important components.
+
+### Dataset
+
+The dataset contains annotated RGB images representing agricultural obstacles.
+
+Current foundation classes include:
+
+* Tree
+* Plant
+
+Future production classes will include:
+
+* Coconut Tree
+* Other Trees
+* Rock
+* Weed
+* Small Stone
+
+---
+
+### Epoch
+
+An epoch represents one complete pass through the entire training dataset.
+
+Example:
+
+```text
+Dataset Size : 60 Images
+
+Epoch 1 → All 60 Images
+
+Epoch 2 → All 60 Images Again
+
+Epoch 3 → All 60 Images Again
+```
+
+Increasing the number of epochs allows the model to learn more refined visual patterns.
+
+---
+
+### Batch Size
+
+Instead of processing the entire dataset simultaneously, images are processed in smaller groups called batches.
+
+Example:
+
+```text
+Dataset : 60 Images
+
+Batch Size : 4
+
+15 Batches per Epoch
+```
+
+Smaller batches reduce memory usage, while larger batches may improve training stability depending on available hardware.
+
+---
+
+### Image Size
+
+YOLOv8 requires all input images to have the same dimensions.
+
+During training, every image is resized to a predefined resolution.
+
+Example:
+
+```text
+640 × 640 pixels
+```
+
+Standardized image dimensions improve computational efficiency and maintain consistent input to the neural network.
+
+---
+
+# 3.3 Loss Function
+
+The objective of training is to minimize prediction error, commonly referred to as **Loss**.
+
+YOLOv8 optimizes several loss components simultaneously:
+
+### Box Loss
+
+Measures how accurately the predicted bounding box matches the annotated object.
+
+Lower values indicate better localization.
+
+---
+
+### Classification Loss
+
+Measures whether the object has been assigned the correct class label.
+
+Example:
+
+```text
+Predicted : Plant
+Actual : Tree
+```
+
+This contributes to the classification loss.
+
+---
+
+### Distribution Focal Loss (DFL)
+
+Improves the precision of bounding box regression by learning more accurate object boundaries.
+
+It helps YOLOv8 produce tighter and more reliable bounding boxes.
+
+---
+
+### Total Loss
+
+The optimization process minimizes the combined value of:
+
+```text
+Total Loss
+=
+Box Loss
++
+Classification Loss
++
+Distribution Focal Loss
+```
+
+As training progresses, these loss values should gradually decrease.
+
+---
+
+# 3.4 Model Evaluation Metrics
+
+After each training epoch, the model is evaluated using the validation dataset.
+
+Several performance metrics are recorded.
+
+### Precision
+
+Precision measures how many predicted detections are correct.
+
+High Precision indicates fewer false detections.
+
+---
+
+### Recall
+
+Recall measures how many actual objects were successfully detected.
+
+High Recall indicates fewer missed objects.
+
+---
+
+### mAP50
+
+Mean Average Precision at an IoU threshold of 0.50.
+
+This metric summarizes overall detection performance.
+
+---
+
+### mAP50-95
+
+A stricter evaluation metric computed over multiple IoU thresholds.
+
+This provides a more comprehensive measure of model quality.
+
+---
+
+# 3.5 Model Output
+
+The training process produces several output files.
+
+| File                   | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `best.pt`              | Best-performing model selected during training |
+| `last.pt`              | Model weights from the final training epoch    |
+| `results.png`          | Training and validation curves                 |
+| `confusion_matrix.png` | Visualization of classification performance    |
+| `PR_curve.png`         | Precision–Recall curve                         |
+| `F1_curve.png`         | F1 score across confidence thresholds          |
+
+Among these, `best.pt` is used for deployment within the AgriVision Perception System.
+
+---
+
 # 4. Why Transfer Learning?
 
 Transfer Learning provides several engineering advantages.
