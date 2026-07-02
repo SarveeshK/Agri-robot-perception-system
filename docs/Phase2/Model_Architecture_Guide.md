@@ -135,6 +135,8 @@ Initial training uses a small foundation dataset containing:
 * Tree
 * Plant
 
+*The initial public dataset (Tree and Plant) is used to validate the complete machine learning pipeline. The final production model will be fine-tuned using the company's agricultural dataset containing Coconut Tree, Other Trees, Rock, Weed, and Small Stone.*
+
 Subsequent training will incorporate the company dataset containing:
 
 * Coconut Tree
@@ -323,6 +325,14 @@ As training progresses, these loss values should gradually decrease.
 
 ---
 
+### Optimizer
+
+YOLOv8 uses gradient-based optimization (SGD or AdamW depending on the training configuration) to minimize the total loss.
+
+The optimizer updates the network weights after each batch, gradually improving detection performance over multiple epochs.
+
+---
+
 # 3.4 Model Evaluation Metrics
 
 After each training epoch, the model is evaluated using the validation dataset.
@@ -375,6 +385,24 @@ The training process produces several output files.
 | `F1_curve.png`         | F1 score across confidence thresholds          |
 
 Among these, `best.pt` is used for deployment within the AgriVision Perception System.
+
+**What is `best.pt`?**
+
+The `best.pt` file stores the learned neural network weights obtained during training. These weights encode the visual patterns learned by the model and are loaded during inference to perform real-time object detection.
+
+---
+
+# 3.6 Data Augmentation
+
+During training, YOLO automatically performs augmentations such as:
+
+* Random flipping
+* Scaling
+* Translation
+* Mosaic augmentation
+* Color augmentation
+
+This improves the model's ability to generalize to unseen environments.
 
 ---
 
@@ -438,6 +466,31 @@ Real-Time Inference
 The training process automatically evaluates each epoch and saves the highest-performing model as `best.pt`.
 
 This model is subsequently loaded by the perception pipeline for deployment.
+
+```text
+Camera Frame
+      │
+      ▼
+Image Preprocessing
+      │
+      ▼
+YOLOv8 Nano
+      │
+      ▼
+Bounding Boxes
+      │
+      ▼
+Object Classes
+      │
+      ▼
+Confidence Scores
+      │
+      ▼
+RealSense Depth Estimation
+      │
+      ▼
+GO / DON'T GO Decision
+```
 
 ---
 
