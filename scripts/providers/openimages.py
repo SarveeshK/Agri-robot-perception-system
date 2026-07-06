@@ -101,7 +101,7 @@ def write_provider_data_yaml(output_dir: str, class_map: dict[str, list[str]]) -
 def download(args) -> None:
     """Entry point called by download_dataset.py dispatcher."""
     try:
-        from openimages.download import download_images
+        from openimages.download import download_dataset
     except ImportError:
         print("ERROR: 'openimages' package not installed.")
         print("Install it with:  pip install openimages")
@@ -128,20 +128,47 @@ def download(args) -> None:
 
     print("Downloading images from Open Images V7...")
     try:
-        download_images(
-            dest_dir    = TEMP_DIR,
-            limit       = args.limit,
-            label_names = all_oid_labels,
-            annotation_format = "darknet",   # YOLO-compatible format
+        download_dataset(
+            dest_dir=TEMP_DIR,
+            class_labels=all_oid_labels,
+            annotation_format="darknet",
+            limit=args.limit,
         )
     except Exception as e:
         print(f"ERROR during download: {e}")
         sys.exit(1)
 
-    # ── 3. Validate downloaded files ──────────────────
+    # ── 3. Flatten and Validate ───────────────────────
     import cv2
     images_dir = os.path.join(TEMP_DIR, "images")
     labels_dir = os.path.join(TEMP_DIR, "labels")
+    os.makedirs(images_dir, exist_ok=True)
+    os.makedirs(labels_dir, exist_ok=True)
+
+    # openimages saves to TEMP_DIR/<label>/images/ and TEMP_DIR/<label>/darknet/
+    for oid_label in all_oid_labels:
+        # The package often uses lowercase with underscores or exact label name
+        # We search the whole TEMP_DIR for any images and darknet folders
+        pass
+
+    for img_file in Path(TEMP_DIR).rglob("*.jpg"):
+        if img_file.parent.name == "images" and img_file.parent.parent.name != "temp":
+            # Flatten image
+            shutil.move(str(img_file), os.path.join(images_dir, img_file.name))
+            
+    for lbl_file in Path(TEMP_DIR).rglob("*.txt"):
+        # The labels are in 'darknet' dir usually
+        if lbl_file.parent.name == "darknet":
+            shutil.move(str(lbl_file), os.path.join(labels_dir, lbl_file.name))
+
+    # Clean up empty subdirectories
+    for oid_label in all_oid_labels:
+        label_dir = os.path.join(TEMP_DIR, oid_label.replace(" ", "_").lower())
+        if os.path.exists(label_dir):
+            shutil.rmtree(label_dir, ignore_errors=True)
+        label_dir_exact = os.path.join(TEMP_DIR, oid_label)
+        if os.path.exists(label_dir_exact):
+            shutil.rmtree(label_dir_exact, ignore_errors=True)
 
     if not os.path.exists(images_dir):
         print("ERROR: No images downloaded. Check network and OIDv7 availability.")

@@ -105,12 +105,15 @@ def download(args) -> None:
     print(f"  Project   : {project_name}")
     print(f"  Version   : {version}")
 
-    os.makedirs(TEMP_DIR, exist_ok=True)
+    # Remove TEMP_DIR if it exists so Roboflow doesn't skip the download
+    if os.path.exists(TEMP_DIR):
+        shutil.rmtree(TEMP_DIR)
 
     try:
         rf      = Roboflow(api_key=api_key)
         project = rf.workspace(workspace).project(project_name)
         dataset = project.version(version).download("yolov8", location=TEMP_DIR)
+        download_path = dataset.location
     except Exception as e:
         print(f"ERROR during Roboflow download: {e}")
         sys.exit(1)
@@ -125,7 +128,7 @@ def download(args) -> None:
     image_count = 0
 
     for split in ["train", "valid", "test"]:
-        split_dir = Path(TEMP_DIR) / split
+        split_dir = Path(download_path) / split
         if not split_dir.exists():
             continue
         for img in (split_dir / "images").glob("*"):
@@ -137,9 +140,10 @@ def download(args) -> None:
                 image_count += 1
 
     # Copy data.yaml from Roboflow download
-    rf_yaml = Path(TEMP_DIR) / "data.yaml"
-    if rf_yaml.exists():
-        shutil.copy2(rf_yaml, os.path.join(TEMP_DIR, "data.yaml"))
+    rf_yaml = Path(download_path) / "data.yaml"
+    dest_yaml = Path(TEMP_DIR) / "data.yaml"
+    if rf_yaml.exists() and rf_yaml.resolve() != dest_yaml.resolve():
+        shutil.copy2(rf_yaml, dest_yaml)
 
     # Move temp → raw/roboflow
     if os.path.exists(RAW_DIR):

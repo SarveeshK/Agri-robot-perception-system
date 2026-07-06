@@ -25,6 +25,9 @@ import sys
 import os
 import yaml
 
+# Add project root to sys.path so 'scripts.providers' can be resolved
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 
 CONFIG_PATH = "config/dataset_sources.yaml"
 

@@ -95,19 +95,25 @@ def download(args) -> None:
 
     os.makedirs(TEMP_DIR, exist_ok=True)
 
-    print(f"Downloading Kaggle dataset: {args.dataset}")
-    result = subprocess.run(
-        ["kaggle", "datasets", "download",
-         "-d", args.dataset,
-         "-p", TEMP_DIR,
-         "--unzip"],
-        capture_output=False,
-        text=True,
-    )
-
-    if result.returncode != 0:
-        print(f"ERROR: Kaggle download failed (exit code {result.returncode}).")
+    print(f"Downloading Kaggle dataset: {args.dataset} (via kagglehub)")
+    try:
+        import kagglehub
+    except ImportError:
+        print("ERROR: 'kagglehub' package not installed.")
+        print("Install it with:  pip install kagglehub")
         sys.exit(1)
+
+    try:
+        # kagglehub uses the KAGGLE_API_TOKEN environment variable natively
+        download_path = kagglehub.dataset_download(args.dataset)
+    except Exception as e:
+        print(f"ERROR: Kaggle download failed: {e}")
+        sys.exit(1)
+
+    # Copy files from kagglehub cache to TEMP_DIR
+    if os.path.exists(TEMP_DIR):
+        shutil.rmtree(TEMP_DIR)
+    shutil.copytree(download_path, TEMP_DIR)
 
     # Find YOLO images/ and labels/ directories
     temp_path  = Path(TEMP_DIR)

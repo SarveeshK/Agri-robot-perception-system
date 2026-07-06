@@ -21,7 +21,6 @@ classes:
     source_labels:
       openimages:
         - Tree
-        - Palm tree
       roboflow:
         - Coconut Tree
         - Palm

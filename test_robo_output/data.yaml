@@ -1,0 +1,13 @@
+names:
+- anomaly-fence
+- fences
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: fence-detection-bkrx1
+  url: https://universe.roboflow.com/ayoub-9grd0/fence-detection-bkrx1/dataset/2
+  version: 2
+  workspace: ayoub-9grd0
+test: ../test/images
+train: ../train/images
+val: ../valid/images
