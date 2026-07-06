@@ -112,7 +112,17 @@ def download(args) -> None:
     try:
         rf      = Roboflow(api_key=api_key)
         project = rf.workspace(workspace).project(project_name)
-        dataset = project.version(version).download("yolov8", location=TEMP_DIR)
+        try:
+            dataset = project.version(version).download("yolov8", location=TEMP_DIR)
+        except Exception as e:
+            print(f"  Version {version} not found. Auto-detecting latest version...")
+            versions = project.versions()
+            if not versions:
+                raise Exception("No versions found for this project.")
+            latest_version = versions[0].version.split("/")[-1]
+            print(f"  Auto-detected version: {latest_version}")
+            dataset = project.version(latest_version).download("yolov8", location=TEMP_DIR)
+            
         download_path = dataset.location
     except Exception as e:
         print(f"ERROR during Roboflow download: {e}")
@@ -145,13 +155,14 @@ def download(args) -> None:
     if rf_yaml.exists() and rf_yaml.resolve() != dest_yaml.resolve():
         shutil.copy2(rf_yaml, dest_yaml)
 
-    # Move temp → raw/roboflow
-    if os.path.exists(RAW_DIR):
-        shutil.rmtree(RAW_DIR)
-    shutil.move(TEMP_DIR, RAW_DIR)
-    print(f"Moved to: {RAW_DIR}")
+    # Move temp → raw/roboflow_<project_name>
+    dynamic_raw_dir = f"datasets/raw/roboflow_{project_name}"
+    if os.path.exists(dynamic_raw_dir):
+        shutil.rmtree(dynamic_raw_dir)
+    shutil.move(TEMP_DIR, dynamic_raw_dir)
+    print(f"Moved to: {dynamic_raw_dir}")
 
-    write_dataset_info(RAW_DIR, args.url, project_name, image_count)
+    write_dataset_info(dynamic_raw_dir, args.url, project_name, image_count)
 
-    print(f"\nRoboflow download complete. {image_count} images in {RAW_DIR}")
+    print(f"\nRoboflow download complete. {image_count} images in {dynamic_raw_dir}")
     print("Next: python scripts/merge_dataset.py")

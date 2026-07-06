@@ -37,3 +37,99 @@ providers:
     priority: 4
     module: providers.manual
     notes: "Local ZIP files or hand-placed datasets. Any class."
+
+active_datasets:
+  # The datasets below are strictly controlled. Only change status to Approved after passing verification.
+  - id: tree_rf
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: trees-sam
+    project: yolov8tree
+    version: 2
+    target_class: Tree
+    status: Approved
+    expected_labels: [tree]
+    expected_images: 7454
+    license: CC BY 4.0
+    last_verified: "2026-07-06"
+
+  - id: rock_rf
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: rocks-ebmeq
+    project: rocks-detection-govch
+    version: 1
+    target_class: Rock
+    status: Approved
+    expected_labels: [stone]
+    expected_images: 4391
+    license: CC BY 4.0
+    last_verified: "2026-07-06"
+
+  - id: fence_rf
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: ayoub-9grd0
+    project: fence-detection-bkrx1
+    version: 2
+    target_class: Fence
+    status: Approved
+    expected_labels: [fence]
+    expected_images: 3334
+    license: CC BY 4.0
+    last_verified: "2026-07-06"
+
+  - id: weed_rf
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: project-weeds
+    project: weed-detection-5jm0z
+    version: 2
+    target_class: Weed
+    status: Approved
+    expected_labels: [Weeds]
+    expected_images: 377
+    license: CC BY 4.0
+    last_verified: "2026-07-06"
+
+  - id: bush_rf
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: mtlworkspace
+    project: bush-detection
+    version: 1
+    target_class: Bush
+    status: Approved
+    expected_labels: [Bushes]
+    expected_images: 586
+    license: CC BY 4.0
+    last_verified: "2026-07-06"
+
+  - id: stump_rf
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: minbin
+    project: tree-stump
+    version: 1
+    target_class: Stump
+    status: Approved
+    expected_labels: [trees-stump]
+    expected_images: 57
+    license: CC BY 4.0
+    last_verified: "2026-07-06"
+
+deduplication:
+  enabled: true
+  phash_threshold: 5
+  weights:
+    annotations: 1000
+    pixels: 1
+    filesize: 0.001
+    priority: 5000
+    recency: 100

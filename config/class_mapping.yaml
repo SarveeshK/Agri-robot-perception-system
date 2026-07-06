@@ -26,6 +26,8 @@ classes:
         - Palm
         - Tree
         - tree
+      roboflow_tree-stump:
+        - tree
       kaggle:
         - tree
         - palm_tree
@@ -41,6 +43,8 @@ classes:
         - Tree stump
         - Stump
         - stump
+      roboflow_tree-stump:
+        - trees-stump
       kaggle:
         - stump
         - tree_stump
@@ -57,6 +61,8 @@ classes:
         - Rock
         - Boulder
         - rock
+      roboflow_rocks-detection-govch:
+        - stone
       kaggle:
         - rock
         - boulder
@@ -71,7 +77,6 @@ classes:
       openimages:
         - Stone
       roboflow:
-        - Stone
         - Pebble
         - Gravel
       kaggle:
@@ -92,6 +97,8 @@ classes:
         - Grass weed
         - Invasive plant
         - weed
+      roboflow_weed-detection-5jm0z:
+        - Weeds
       kaggle:
         - weed
         - grass_weed
@@ -109,6 +116,8 @@ classes:
         - Shrub
         - Hedge
         - bush
+      roboflow_bush-detection:
+        - Bushes
       kaggle:
         - bush
         - shrub
@@ -126,6 +135,8 @@ classes:
         - Wire fence
         - Chain-link fence
         - fence
+        - fences
+        - anomaly-fence
       kaggle:
         - fence
         - wire_fence

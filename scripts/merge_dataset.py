@@ -38,6 +38,7 @@ import yaml
 import datetime
 from pathlib import Path
 from collections import defaultdict
+import json
 
 
 # ── Config paths ──────────────────────────────────────────────────────────────
@@ -50,13 +51,6 @@ IMAGE_EXTS     = {".jpg", ".jpeg", ".png", ".bmp"}
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def sha256(path: Path) -> str:
-    """Compute SHA256 hash of file bytes."""
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
 
 
 def load_class_mapping(config_path: str) -> dict:
@@ -71,17 +65,27 @@ def load_sources(sources_path: str) -> dict:
         return yaml.safe_load(f).get("providers", {})
 
 
-def build_label_lookup(class_cfg: dict, provider_name: str) -> dict[str, int]:
+def build_label_lookup(class_cfg: dict, provider_name: str, base_provider: str) -> dict[str, int]:
     """
     Build {source_label_lowercase: canonical_class_id} for a given provider.
-    Reads source_labels.<provider_name> from class_mapping.yaml.
+    Reads source_labels.<provider_name> (dataset-specific) and source_labels.<base_provider> (fallback) from class_mapping.yaml.
     """
     lookup: dict[str, int] = {}
     for cls_name, cls_data in class_cfg["classes"].items():
-        cls_id       = cls_data["id"]
-        src_labels   = cls_data.get("source_labels", {}).get(provider_name, [])
-        for label in src_labels:
+        cls_id = cls_data["id"]
+        source_labels_dict = cls_data.get("source_labels", {})
+        
+        # 1. Base provider fallback (e.g., roboflow)
+        base_labels = source_labels_dict.get(base_provider, [])
+        for label in base_labels:
             lookup[label.lower()] = cls_id
+            
+        # 2. Exact provider override (e.g., roboflow_rocks-detection-govch)
+        # This overwrites the base mapping if there's a conflict
+        exact_labels = source_labels_dict.get(provider_name, [])
+        for label in exact_labels:
+            lookup[label.lower()] = cls_id
+            
     return lookup
 
 
@@ -99,30 +103,26 @@ def load_provider_info(provider_dir: Path) -> dict:
         return yaml.safe_load(f)
 
 
-def load_provider_data_yaml(provider_dir: Path) -> dict:
-    """Load data.yaml which maps canonical_mapping: {source_label: canonical}."""
+def load_provider_data_yaml(provider_dir: Path) -> list[str]:
+    """Load data.yaml which contains the names of the source classes."""
     data_yaml = provider_dir / "data.yaml"
     if not data_yaml.exists():
-        return {}
+        return []
     with open(data_yaml, "r") as f:
         data = yaml.safe_load(f)
-    return data.get("canonical_mapping", {})
+    return data.get("names", [])
 
 
 def process_label_file(
     lbl_path    : Path,
     label_lookup: dict[str, int],
-    data_mapping: dict[str, str],
+    provider_names: list[str],
     class_cfg   : dict,
     provider_name: str,
 ) -> tuple[list[str], list[str]]:
     """
     Read source label file, map each annotation to canonical class id.
     Returns (harmonized_lines, unmapped_labels).
-
-    The source label file may use integer class ids (YOLO format).
-    We need to reverse-map the int → source class name → canonical id.
-    The data.yaml canonical_mapping is our primary lookup.
     """
     if not lbl_path.exists():
         return [], []
@@ -141,38 +141,24 @@ def process_label_file(
         src_class_id = int(parts[0])
         coords       = parts[1:]
 
-        # Try data_mapping (OIDv7 label name → canonical)
-        # data_mapping keys are source label names, not IDs.
-        # For providers that write class names in labels (Roboflow),
-        # the class id in the file corresponds to the provider's own ordering.
-        # We look up via label_lookup which is always keyed by lowercase label name.
-
-        # First attempt: use data_mapping which has {oid_label_str: canonical_name}
-        # We need id → label_str → canonical_id
-        # Build reverse of data_mapping for this call
         canonical_id = None
+        src_label_name = None
 
-        # Build id→name from data_mapping (values are canonical names, keys are source names)
-        # Try direct source_label lookup by id position
-        # Provider data.yaml: canonical_mapping: {source_label: canonical_class_name}
-        # We need to find which source label maps to src_class_id
-        # This depends on provider ordering — use label_lookup as primary
+        if isinstance(provider_names, dict):
+            if src_class_id in provider_names:
+                src_label_name = str(provider_names[src_class_id]).lower()
+            elif str(src_class_id) in provider_names:
+                src_label_name = str(provider_names[str(src_class_id)]).lower()
+        elif isinstance(provider_names, list):
+            if src_class_id < len(provider_names):
+                src_label_name = str(provider_names[src_class_id]).lower()
 
-        # Simplest robust approach: if data_mapping exists, build id→canonical via
-        # the order of entries in class_mapping source_labels for this provider
-        source_labels_ordered = []
-        for cls_name, cls_data in class_cfg["classes"].items():
-            labels = cls_data.get("source_labels", {}).get(provider_name, [])
-            source_labels_ordered.extend(labels)
-
-        if src_class_id < len(source_labels_ordered):
-            src_label_name = source_labels_ordered[src_class_id].lower()
-            canonical_id   = label_lookup.get(src_label_name)
+        if src_label_name is not None:
+            canonical_id = label_lookup.get(src_label_name)
 
         if canonical_id is None:
-            # Fallback: try treating src_class_id as the canonical id directly
-            # (e.g. if the dataset was already in our canonical format)
-            if 0 <= src_class_id < len(class_cfg["classes"]):
+            # Fallback only for manual datasets
+            if provider_name == "manual" and 0 <= src_class_id < len(class_cfg["classes"]):
                 canonical_id = src_class_id
 
         if canonical_id is not None:
@@ -216,7 +202,7 @@ def merge_datasets() -> None:
 
     provider_dirs = sorted(
         [d for d in raw_path.iterdir() if d.is_dir() and d.name != "temp"],
-        key=lambda d: provider_priority.get(d.name, 99),
+        key=lambda d: provider_priority.get(d.name.split("_")[0], 99),
     )
 
     if not provider_dirs:
@@ -224,7 +210,13 @@ def merge_datasets() -> None:
         return
 
     # State tracking
-    seen_hashes     : dict[str, str] = {}    # hash → filename
+    # Load deduplication skip list if it exists
+    skip_list_path = Path("datasets/processed/duplicates_to_skip.json")
+    skip_list = set()
+    if skip_list_path.exists():
+        with open(skip_list_path, "r") as f:
+            skip_list = set(json.load(f))
+
     metadata_rows   : list[dict]     = []
     provider_counts : dict[str, int] = defaultdict(int)
     dup_count       = 0
@@ -234,10 +226,24 @@ def merge_datasets() -> None:
     print(f"\nProcessing {len(provider_dirs)} provider(s): {[d.name for d in provider_dirs]}\n")
 
     for provider_dir in provider_dirs:
+        # Strict directory validation
+        info_yaml = provider_dir / "dataset_info.yaml"
+        data_yaml = provider_dir / "data.yaml"
+        classes_txt = provider_dir / "classes.txt"
+        
+        if not info_yaml.exists():
+            print(f"  [{provider_dir.name}] Skipping (missing dataset_info.yaml)")
+            continue
+            
+        if not (data_yaml.exists() or classes_txt.exists()):
+            print(f"  [{provider_dir.name}] Skipping (missing data.yaml or classes.txt)")
+            continue
+            
         provider_name = provider_dir.name
+        base_provider = provider_name.split("_")[0]
         info          = load_provider_info(provider_dir)
         data_mapping  = load_provider_data_yaml(provider_dir)
-        label_lookup  = build_label_lookup(class_cfg, provider_name)
+        label_lookup  = build_label_lookup(class_cfg, provider_name, base_provider)
 
         images_dir = provider_dir / "images"
         labels_dir = provider_dir / "labels"
@@ -254,12 +260,11 @@ def merge_datasets() -> None:
         print(f"[{provider_name}] Processing {len(image_files)} images...")
 
         for img_path in image_files:
-            # Duplicate check via SHA256
-            img_hash = sha256(img_path)
-            if img_hash in seen_hashes:
+            # Check skip list
+            rel_path = f"{provider_name}/images/{img_path.name}"
+            if rel_path in skip_list:
                 dup_count += 1
                 continue
-            seen_hashes[img_hash] = img_path.name
 
             # Process label
             lbl_path              = labels_dir / (img_path.stem + ".txt")

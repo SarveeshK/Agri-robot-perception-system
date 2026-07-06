@@ -29,9 +29,10 @@ A dataset is only marked as **Approved** if it meets the following objective rul
 
 | Priority | Class | Dataset | Domain | Source | Version | Images | Target Class | License | Annotation | Diversity | RealSense Fit | Purpose | Keep | Status |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| P0 | Tree | [Tree Counting Image Dataset](https://www.kaggle.com/datasets/skurski/tree-counting-image-dataset) | Forest/Urban | Kaggle | v1 | 91 | Tree | CC BY 4.0 | TBD | TBD | TBD | Extract Trees | TBD | Pending |
+| P0 | Tree | [Tree Counting Image Dataset](https://www.kaggle.com/datasets/skurski/tree-counting-image-dataset) | Forest/Urban | Kaggle | v1 | 91 | Tree | CC BY 4.0 | TBD | TBD | TBD | Extract Trees | No | **Rejected (Kaggle Auth Issues)** |
 | P0 | Tree | [Tree Yolo Annotated](https://www.kaggle.com/datasets/ahmadheshammahmoud/tree-yolo-annotated) | Farm/Forest | Kaggle | v1 | ~1500 | Tree | Unknown | TBD | TBD | TBD | Extract Trees | No | **Rejected (Deleted)** |
+| P0 | Tree | [yolov8tree (trees-sam)](https://universe.roboflow.com/trees-sam/yolov8tree) | Mixed | Roboflow | v1 | ~1000 | tree | CC BY 4.0 | TBD | TBD | TBD | Extract Trees | Yes | **Approved** |
 | P0 | Rock | [MARGALLA TREE ROCKS](https://universe.roboflow.com/asim-cheema/margalla-tree-rocks) | Forest | Roboflow | v1 | ~1300 | Rock, Stone | CC BY 4.0 | TBD | TBD | TBD | Extract Rocks | TBD | Pending |
-| P0 | Rock | [Rocks Detection (govch)](https://universe.roboflow.com/rocks-ebmeq/rocks-detection-govch) | Mixed | Roboflow | v1 | ~1000 | Float_Rock | CC BY 4.0 | TBD | TBD | TBD | Extract Rocks | TBD | Pending |
-| P0 | Fence | [Fence Detection (ayoub-9grd0)](https://universe.roboflow.com/ayoub-9grd0/fence-detection-bkrx1) | Farm/Urban | Roboflow | v2 | ~700 | Fence | CC BY 4.0 | TBD | TBD | TBD | Extract Fence | TBD | Pending |
+| P0 | Rock | [Rocks Detection (govch)](https://universe.roboflow.com/rocks-ebmeq/rocks-detection-govch) | Mixed | Roboflow | v1 | ~1000 | Float_Rock | CC BY 4.0 | TBD | TBD | TBD | Extract Rocks | Yes | **Approved** |
+| P0 | Fence | [Fence Detection (ayoub-9grd0)](https://universe.roboflow.com/ayoub-9grd0/fence-detection-bkrx1) | Farm/Urban | Roboflow | v2 | ~700 | Fence | CC BY 4.0 | TBD | TBD | TBD | Extract Fence | Yes | **Approved** |
 | P0 | Fence | [Broken Fence Detection](https://universe.roboflow.com/) | Farm | Roboflow | v1 | ~500 | Fence | CC BY 4.0 | TBD | TBD | TBD | Extract Fence | TBD | Pending |
