@@ -1,9 +1,135 @@
-foundation_dataset:
-  Tree: 0
-  Plant: 1
+# ============================================================
+# AgriVision Class Mapping — Single Source of Truth
+# ============================================================
+# Every canonical class is defined here with:
+#   id            : YOLO class index used in .txt labels and data.yaml
+#   source_labels : per-provider label names that map to this class
+#
+# Used by:
+#   download_dataset.py → knows what to request from each provider
+#   merge_dataset.py    → knows how to map incoming labels to canonical class
+#
+# ALIASING RULE: Only add a source label if you are confident that the
+# provider uses it specifically for THIS class. When in doubt, leave it out.
+# Empty list [] = class not available from that provider (explicit declaration).
+# ============================================================
 
-production_dataset:
-  tree: 0
-  rock: 1
-  weed: 2
-  small_stone: 3
+classes:
+
+  Tree:
+    id: 0
+    source_labels:
+      openimages:
+        - Tree
+        - Palm tree
+      roboflow:
+        - Coconut Tree
+        - Palm
+        - Tree
+        - tree
+      kaggle:
+        - tree
+        - palm_tree
+        - coconut_tree
+      manual:
+        - tree
+
+  Stump:
+    id: 1
+    source_labels:
+      openimages: []          # not available in Open Images V7
+      roboflow:
+        - Tree stump
+        - Stump
+        - stump
+      kaggle:
+        - stump
+        - tree_stump
+      manual:
+        - stump
+        - log
+
+  Rock:
+    id: 2
+    source_labels:
+      openimages:
+        - Rock
+      roboflow:
+        - Rock
+        - Boulder
+        - rock
+      kaggle:
+        - rock
+        - boulder
+        - large_rock
+      manual:
+        - rock
+        - boulder
+
+  Small_Stone:
+    id: 3
+    source_labels:
+      openimages:
+        - Stone
+      roboflow:
+        - Stone
+        - Pebble
+        - Gravel
+      kaggle:
+        - stone
+        - pebble
+        - gravel
+        - cobble
+      manual:
+        - stone
+        - pebble
+
+  Weed:
+    id: 4
+    source_labels:
+      openimages: []          # no reliable weed label in Open Images
+      roboflow:
+        - Weed
+        - Grass weed
+        - Invasive plant
+        - weed
+      kaggle:
+        - weed
+        - grass_weed
+        - unwanted_plant
+        - invasive_plant
+      manual:
+        - weed
+
+  Bush:
+    id: 5
+    source_labels:
+      openimages: []
+      roboflow:
+        - Bush
+        - Shrub
+        - Hedge
+        - bush
+      kaggle:
+        - bush
+        - shrub
+        - hedge
+      manual:
+        - bush
+        - shrub
+
+  Fence:
+    id: 6
+    source_labels:
+      openimages: []
+      roboflow:
+        - Fence
+        - Wire fence
+        - Chain-link fence
+        - fence
+      kaggle:
+        - fence
+        - wire_fence
+        - chain_link_fence
+      manual:
+        - fence

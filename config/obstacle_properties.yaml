@@ -1,0 +1,86 @@
+# ============================================================
+# AgriVision Obstacle Properties
+# ============================================================
+# Defines navigation behavior per detected class.
+# Read by the navigation engine (Phase 4).
+# NOT used by any Phase 2 dataset or training script.
+#
+# Defining this now locks in class semantics before training begins.
+#
+# Fields:
+#   confidence_threshold : minimum YOLO confidence to act on a detection
+#   obstacle             : true = blocks the robot's path
+#   traversable          : false / true / conditional
+#   stop_distance_m      : meters at which the robot must stop
+#   size_threshold_cm    : (conditional only) RealSense-estimated object width
+#                          below which Small_Stone may be traversed
+#   priority             : 1 (highest urgency) to 5 (lowest)
+#   notes                : human-readable rationale
+# ============================================================
+
+obstacle_properties:
+
+  Tree:
+    confidence_threshold: 0.60
+    obstacle: true
+    traversable: false
+    stop_distance_m: 1.5
+    priority: 1
+    notes: "Large immovable structure. Hard stop and reroute."
+
+  Stump:
+    confidence_threshold: 0.65
+    obstacle: true
+    traversable: false
+    stop_distance_m: 1.0
+    priority: 1
+    notes: >
+      Low-profile but rigid. Higher confidence threshold because stumps
+      are easily confused with rocks at distance. Includes coconut,
+      palm, and bamboo stumps — all present the same navigation hazard.
+
+  Rock:
+    confidence_threshold: 0.60
+    obstacle: true
+    traversable: false
+    stop_distance_m: 1.2
+    priority: 2
+    notes: "Large rock or boulder. Stop and reroute."
+
+  Small_Stone:
+    confidence_threshold: 0.55
+    obstacle: true
+    traversable: conditional
+    stop_distance_m: 0.5
+    size_threshold_cm: 10.0
+    priority: 3
+    notes: >
+      If RealSense-estimated width < size_threshold_cm, may attempt to
+      traverse. Otherwise treat as Rock. This resolves dataset label
+      ambiguity at runtime using physical size rather than class name.
+
+  Weed:
+    confidence_threshold: 0.50
+    obstacle: false
+    traversable: true
+    stop_distance_m: null
+    priority: 5
+    notes: "Traversable vegetation. Log GPS location for treatment planning."
+
+  Bush:
+    confidence_threshold: 0.60
+    obstacle: true
+    traversable: false
+    stop_distance_m: 1.0
+    priority: 2
+    notes: "Blocks path. May also occlude depth readings behind it."
+
+  Fence:
+    confidence_threshold: 0.70
+    obstacle: true
+    traversable: false
+    stop_distance_m: 2.0
+    priority: 1
+    notes: >
+      Hard boundary. Highest confidence threshold and largest stop distance.
+      Robot must never cross a fence — treat as absolute boundary.

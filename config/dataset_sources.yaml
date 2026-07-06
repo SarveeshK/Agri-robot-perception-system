@@ -1,0 +1,39 @@
+# ============================================================
+# AgriVision Dataset Provider Registry
+# ============================================================
+# download_dataset.py reads this file to discover providers.
+# merge_dataset.py reads priority to resolve duplicate images.
+#
+# Fields per provider:
+#   enabled  : true/false — set false to skip without removing config
+#   priority : lower = higher priority for duplicate resolution
+#              (if two providers have same SHA256, lower priority wins)
+#   module   : Python module path inside scripts/
+#   notes    : best use case for this provider
+# ============================================================
+
+providers:
+
+  openimages:
+    enabled: true
+    priority: 1
+    module: providers.openimages
+    notes: "Open Images V7. Best for: Tree, Rock, Small_Stone."
+
+  roboflow:
+    enabled: true
+    priority: 2
+    module: providers.roboflow
+    notes: "Roboflow Universe. Best for: Stump, Bush, Fence, Weed."
+
+  kaggle:
+    enabled: true
+    priority: 3
+    module: providers.kaggle
+    notes: "Kaggle datasets. Best for: Rock, Small_Stone, Weed."
+
+  manual:
+    enabled: true
+    priority: 4
+    module: providers.manual
+    notes: "Local ZIP files or hand-placed datasets. Any class."

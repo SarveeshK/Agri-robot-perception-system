@@ -1,59 +1,166 @@
 # Agro-Robot Perception System
 
-A modular, real-time perception system designed for an autonomous agricultural robot (Phase 1). This pipeline integrates Intel RealSense D456 streams and YOLOv8 object detection to provide robust real-world 3D object measurements and obstacle collision warnings.
+A modular, real-time AI perception system for an autonomous agricultural robot. The system integrates an Intel RealSense D456 depth camera with a custom-trained YOLOv8 model to detect agricultural obstacles in real time and provide 3D distance measurements for safe navigation.
 
-## Features
+---
 
-- **Aligned RGB-Depth Stream**: Synchronized capture and alignment of color and depth streams.
-- **YOLOv8 Detection**: High-speed object detection of specific configurable classes.
-- **Robust 3D Measurement**: Measures object distance, width, and height in real-world dimensions (cm).
-- **Depth Optimization**: Implements RealSense Advanced Mode (disparity shift) and Post-Processing filters (Decimation, Threshold, Spatial, Temporal, Hole Filling) to enhance sensing at close ranges and remove zero-depth noise.
-- **Proximity HUD**: Whole-frame obstacle tracking that provides real-time "DON'T GO" warnings if any tracked object violates safety thresholds.
+## Project Architecture
 
-## Current Pipeline Architecture (Phase 1)
-```text
-Intel RealSense D456
-        ↓
-RGB Frame + Depth Frame
-        ↓
-Frame Alignment
-        ↓
-YOLO Detection
-        ↓
-Depth Processing
-        ↓
-Object Measurement
-        ↓
-Visualization
+```
+Internet (Public Datasets)
+         │
+         ▼
+download_dataset.py       ← multi-provider dataset downloader
+         │
+         ▼
+datasets/raw/             ← source-separated raw data
+         │
+         ▼
+merge_dataset.py          ← label harmonization + SHA256 deduplication
+         │
+         ▼
+datasets/merged/          ← unified YOLO labels + provenance metadata
+         │
+         ▼
+prepare_dataset.py        ← validate, stratified split, data.yaml
+         │
+         ▼
+datasets/processed/       ← train/ val/ data.yaml
+         │
+         ▼
+train_model.py → evaluate_model.py → export_model.py
+         │
+         ▼
+best.pt
+         │
+         ▼
+RealSense D456  +  YOLO  →  Obstacle Detection  →  Navigation
 ```
 
-## Setup
+---
 
-Ensure your environment has the required packages:
+## Detection Classes
+
+| ID | Class | Navigation Behavior |
+|---|---|---|
+| 0 | Tree | Hard stop at 1.5 m |
+| 1 | Stump | Hard stop at 1.0 m |
+| 2 | Rock | Hard stop at 1.2 m |
+| 3 | Small_Stone | Conditional (size-based) |
+| 4 | Weed | Traversable |
+| 5 | Bush | Hard stop at 1.0 m |
+| 6 | Fence | Hard stop at 2.0 m |
+
+---
+
+## Setup
 
 ```bash
 pip install -r requirements.txt
 ```
 
-*(Note: The provided `yolov8n.pt` weights must be placed in `models/` or they will be automatically downloaded).*
+Optional provider dependencies (install only for the provider you use):
+```bash
+pip install openimages    # for --provider openimages
+pip install roboflow      # for --provider roboflow
+pip install kaggle        # for --provider kaggle
+```
 
-## Configuration
+---
 
-All system parameters (camera resolution, fps, YOLO thresholds, smoothing algorithms, safety distance limits) are located in `config/settings.yaml`.
-**No hardcoded parameters exist in the source code.**
+## Dataset Pipeline
 
-## Running the System
+```bash
+# Step 1 — Download (repeat for each provider)
+python scripts/download_dataset.py --provider openimages --target Tree Rock --limit 200
+python scripts/download_dataset.py --provider roboflow --url <url> --version 1
 
-To start the perception pipeline:
+# Step 2 — Merge + harmonize labels
+python scripts/merge_dataset.py
+
+# Step 3 — Validate + split + prepare
+python scripts/prepare_dataset.py
+
+# Step 4 — Audit (must PASS before training)
+python scripts/audit_dataset.py
+
+# Step 5 — Train
+python scripts/train_model.py
+
+# Step 6 — Evaluate
+python scripts/evaluate_model.py
+
+# Step 7 — Export to models/trained/
+python scripts/export_model.py
+```
+
+See [docs/Dataset_Strategy.md](docs/Dataset_Strategy.md) for full dataset documentation.
+
+---
+
+## Running the Perception System (Phase 1)
 
 ```bash
 python src/main.py
 ```
 
+---
+
+## Configuration
+
+| File | Purpose |
+|---|---|
+| `config/settings.yaml` | Camera, YOLO inference, visualization, safety distance |
+| `config/class_mapping.yaml` | 7 classes with per-provider source labels |
+| `config/obstacle_properties.yaml` | Navigation behavior per class |
+| `config/dataset_sources.yaml` | Provider registry for downloader |
+
+---
+
+## Repository Structure
+
+```
+Agri-robot-perception-system/
+├── config/                   # All configuration — no hardcoded values
+│   ├── class_mapping.yaml    # Canonical classes + provider label mappings
+│   ├── obstacle_properties.yaml  # Navigation behavior per class
+│   ├── dataset_sources.yaml  # Dataset provider registry
+│   └── settings.yaml         # Camera, YOLO, safety parameters
+├── datasets/
+│   ├── raw/                  # Downloaded datasets (per provider)
+│   ├── merged/               # Harmonized + deduplicated dataset
+│   ├── processed/            # Train/val split ready for training
+│   ├── exports/              # Model exports
+│   └── archive/              # Versioned dataset snapshots (v1, v2, ...)
+├── docs/
+│   ├── Dataset_Strategy.md   # Full dataset design documentation
+│   ├── Phase1/               # RealSense + perception docs
+│   └── Phase2/               # MLOps, training, annotation guides
+├── models/
+│   ├── pretrained/           # Foundation models (yolov8n.pt)
+│   └── trained/              # Production models (best.pt)
+├── scripts/                  # MLOps pipeline
+│   ├── download_dataset.py   # Provider dispatcher
+│   ├── providers/            # One file per dataset provider
+│   ├── merge_dataset.py      # Label harmonization
+│   ├── prepare_dataset.py    # Validation + split
+│   ├── audit_dataset.py      # Pre-training quality gate
+│   ├── train_model.py
+│   ├── evaluate_model.py
+│   └── export_model.py
+└── src/                      # Real-time inference engine (Phase 1)
+    ├── camera/               # RealSense hardware interface
+    ├── perception/           # YOLO + depth + measurement
+    ├── utils/                # Logger, profiler
+    └── main.py
+```
+
+---
+
 ## Engineering Principles
 
-- **Single Responsibility Principle**: Each module performs only one distinct function.
-- **No Hardcoded Parameters**: Every parameter is configurable via `settings.yaml`.
-- **Benchmarked Optimization**: All optimizations (especially Depth processing) are profiled for latency.
-- **Independence**: The perception module operates completely independent of robot control logic.
-- **Modularity**: Designed to easily accommodate future integration of Object Tracking, Decision Engine, and Robot Navigation.
+- **Single Responsibility**: Each script has exactly one job.
+- **Configuration-Driven**: Every parameter in YAML — no hardcoded values.
+- **Provider-Agnostic**: Adding a dataset source = one new file + one config entry.
+- **Reproducible**: SHA256 deduplication + versioned dataset archives.
+- **Modular**: Perception engine is independent of navigation logic.
