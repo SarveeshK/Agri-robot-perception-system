@@ -127,16 +127,18 @@ def download(args) -> None:
     all_oid_labels = [label for labels in target_map.values() for label in labels]
 
     print("Downloading images from Open Images V7...")
-    try:
-        download_dataset(
-            dest_dir=TEMP_DIR,
-            class_labels=all_oid_labels,
-            annotation_format="darknet",
-            limit=args.limit,
-        )
-    except Exception as e:
-        print(f"ERROR during download: {e}")
-        sys.exit(1)
+    for label in all_oid_labels:
+        try:
+            print(f"  -> Downloading {label}...")
+            download_dataset(
+                dest_dir=TEMP_DIR,
+                class_labels=[label],
+                annotation_format="darknet",
+                limit=args.limit,
+            )
+        except Exception as e:
+            print(f"  [ERROR] downloading {label}: {e}")
+            continue
 
     # ── 3. Flatten and Validate ───────────────────────
     import cv2

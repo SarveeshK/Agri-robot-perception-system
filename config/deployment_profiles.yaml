@@ -1,0 +1,23 @@
+# ============================================================
+# AgriVision Deployment Profiles
+# ============================================================
+# Defines the minimum validation thresholds required for
+# a model to graduate to specific deployment stages.
+# ============================================================
+
+baseline:
+  mAP50: 0.75
+  precision: 0.75
+  recall: 0.75
+
+field_test:
+  mAP50: 0.85
+  precision: 0.85
+  recall: 0.85
+  human_recall: 0.95
+
+production:
+  mAP50: 0.90
+  precision: 0.90
+  recall: 0.90
+  human_recall: 0.98

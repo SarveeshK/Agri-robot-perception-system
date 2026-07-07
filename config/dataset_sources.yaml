@@ -39,6 +39,26 @@ providers:
     notes: "Local ZIP files or hand-placed datasets. Any class."
 
 active_datasets:
+  - id: openimages_human
+    enabled: true
+    priority: P0
+    provider: openimages
+    target_class: Human
+    status: Approved
+    expected_labels: [Person]
+    expected_images: 1000
+    license: CC BY 4.0
+
+  - id: openimages_stump
+    enabled: false
+    priority: P0
+    provider: openimages
+    target_class: Stump
+    status: Approved
+    expected_labels: ["Tree stump"]
+    expected_images: 1000
+    license: CC BY 4.0
+
   # The datasets below are strictly controlled. Only change status to Approved after passing verification.
   - id: tree_rf
     enabled: true
@@ -123,6 +143,84 @@ active_datasets:
     expected_images: 57
     license: CC BY 4.0
     last_verified: "2026-07-06"
+
+  - id: small_stone_rf
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: yolo-1makj
+    project: pebbles-detection-44shp
+    version: 1
+    target_class: Small_Stone
+    status: Approved
+    expected_labels: [pebble]
+    expected_images: 110
+    license: CC BY 4.0
+
+  - id: bush_rf_2
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: govind-rai-aiwsm
+    project: shrubs
+    version: 1
+    target_class: Bush
+    status: Approved
+    expected_labels: [shrub]
+    expected_images: 650
+    license: CC BY 4.0
+
+  - id: stump_rf_2
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: jump889
+    project: tree-trunk-train-luh1h
+    version: 1
+    target_class: Stump
+    status: Approved
+    expected_labels: [trunk]
+    expected_images: 238
+    license: Unknown
+
+  - id: background_1
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: university-of-maryland
+    project: farm-ljomy
+    version: 1
+    target_class: Background
+    status: Pending
+    expected_labels: []
+    expected_images: 0
+    license: Unknown
+
+  - id: background_2
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: bernard-tu
+    project: b2_w-instance-segmentation-prllf
+    version: 1
+    target_class: Background
+    status: Approved
+    expected_labels: []
+    expected_images: 47
+    license: Unknown
+
+  - id: tree_stump_custom
+    enabled: true
+    priority: P0
+    provider: roboflow
+    workspace: sarveesh-kaarthic-ramesh-kannan-sarvesh
+    project: tree-detection-13qyz-vwzzr
+    version: 1
+    target_class: Tree # Will verify during inspection
+    status: Pending
+    expected_labels: []
+    expected_images: 0
+    license: Unknown
 
 deduplication:
   enabled: true

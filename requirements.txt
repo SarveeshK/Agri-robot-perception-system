@@ -3,8 +3,12 @@ opencv-python==4.13.0.92
 PyYAML==6.0.3
 ultralytics==8.4.69
 numpy==2.4.6
+imagehash
+pybktree
+Pillow
+tqdm
 
 # Optional provider dependencies — install only for the provider you use:
-# pip install openimages     # --provider openimages
+openimages
 # pip install roboflow       # --provider roboflow
 # pip install kaggle         # --provider kaggle

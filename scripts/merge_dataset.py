@@ -106,11 +106,21 @@ def load_provider_info(provider_dir: Path) -> dict:
 def load_provider_data_yaml(provider_dir: Path) -> list[str]:
     """Load data.yaml which contains the names of the source classes."""
     data_yaml = provider_dir / "data.yaml"
-    if not data_yaml.exists():
-        return []
-    with open(data_yaml, "r") as f:
-        data = yaml.safe_load(f)
-    return data.get("names", [])
+    names = []
+    if data_yaml.exists():
+        with open(data_yaml, "r") as f:
+            data = yaml.safe_load(f)
+        names = data.get("names", [])
+    
+    if not names:
+        # Fallback for OpenImages or raw YOLO darknet which use .txt files
+        for txt_file in ["darknet_obj_names.txt", "classes.txt"]:
+            txt_path = provider_dir / txt_file
+            if txt_path.exists():
+                with open(txt_path, "r") as f:
+                    names = [line.strip() for line in f if line.strip()]
+                break
+    return names
 
 
 def process_label_file(
@@ -309,7 +319,7 @@ def merge_datasets() -> None:
                 "canonical_class": original_label,
                 "license"        : info.get("license", "Unknown"),
                 "homepage"       : info.get("homepage", ""),
-                "sha256"         : img_hash,
+                "sha256"         : "",
             })
 
         print(f"  Done: {provider_counts[provider_name]} images added from {provider_name}")

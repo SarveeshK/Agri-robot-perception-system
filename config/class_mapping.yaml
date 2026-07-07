@@ -38,13 +38,16 @@ classes:
   Stump:
     id: 1
     source_labels:
-      openimages: []          # not available in Open Images V7
+      openimages:
+        - Tree stump
       roboflow:
         - Tree stump
         - Stump
         - stump
       roboflow_tree-stump:
         - trees-stump
+      roboflow_tree-trunk-train-luh1h:
+        - trunk
       kaggle:
         - stump
         - tree_stump
@@ -79,11 +82,14 @@ classes:
       roboflow:
         - Pebble
         - Gravel
+      roboflow_pebbles-detection-44shp:
+        - pebble
       kaggle:
         - stone
         - pebble
         - gravel
         - cobble
+        - pebble
       manual:
         - stone
         - pebble
@@ -118,6 +124,8 @@ classes:
         - bush
       roboflow_bush-detection:
         - Bushes
+      roboflow_shrubs:
+        - shrub
       kaggle:
         - bush
         - shrub
@@ -143,3 +151,23 @@ classes:
         - chain_link_fence
       manual:
         - fence
+
+  Human:
+    id: 7
+    source_labels:
+      openimages:
+        - Person
+      roboflow:
+        - Person
+        - Human
+        - People
+        - human
+        - person
+      roboflow_tree-stump:
+        - human
+      kaggle:
+        - person
+        - human
+      manual:
+        - person
+        - human
