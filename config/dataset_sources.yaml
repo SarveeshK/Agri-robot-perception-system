@@ -46,7 +46,7 @@ active_datasets:
     target_class: Human
     status: Approved
     expected_labels: [Person]
-    expected_images: 1000
+    expected_images: 3000
     license: CC BY 4.0
 
   - id: openimages_stump
@@ -125,8 +125,8 @@ active_datasets:
     version: 1
     target_class: Bush
     status: Approved
-    expected_labels: [Bushes]
-    expected_images: 586
+    expected_labels: [Bush]
+    expected_images: 1500
     license: CC BY 4.0
     last_verified: "2026-07-06"
 
@@ -139,8 +139,8 @@ active_datasets:
     version: 1
     target_class: Stump
     status: Approved
-    expected_labels: [trees-stump]
-    expected_images: 57
+    expected_labels: [Tree-stump]
+    expected_images: 1000
     license: CC BY 4.0
     last_verified: "2026-07-06"
 
