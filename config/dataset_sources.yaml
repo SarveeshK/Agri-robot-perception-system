@@ -46,7 +46,7 @@ active_datasets:
     target_class: Human
     status: Approved
     expected_labels: [Person]
-    expected_images: 1000
+    expected_images: 3000
     license: CC BY 4.0
 
   - id: openimages_stump
@@ -125,8 +125,8 @@ active_datasets:
     version: 1
     target_class: Bush
     status: Approved
-    expected_labels: [Bushes]
-    expected_images: 586
+    expected_labels: [Bush]
+    expected_images: 1500
     license: CC BY 4.0
     last_verified: "2026-07-06"
 
@@ -139,8 +139,8 @@ active_datasets:
     version: 1
     target_class: Stump
     status: Approved
-    expected_labels: [trees-stump]
-    expected_images: 57
+    expected_labels: [Tree-stump]
+    expected_images: 1000
     license: CC BY 4.0
     last_verified: "2026-07-06"
 
@@ -181,6 +181,71 @@ active_datasets:
     status: Approved
     expected_labels: [trunk]
     expected_images: 238
+    license: Unknown
+
+  - id: bush_rf_3
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: fumigation-robot
+    project: bushes-6wkq6
+    version: 1
+    target_class: Bush
+    status: Approved
+    expected_labels: [Bushes]
+    expected_images: 1500
+    license: Unknown
+
+  - id: small_stone_rf_3
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: hell-wnmk9
+    project: stones-ph5qj
+    version: 1
+    target_class: Small_Stone
+    status: Approved
+    expected_labels: [stone]
+    expected_images: 1000
+    license: Unknown
+
+  - id: small_stone_rf_4
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: 2-pebbles
+    project: pebbles-detection
+    version: 1
+    target_class: Small_Stone
+    status: Approved
+    expected_labels: [pebbles]
+    expected_images: 1000
+    license: Unknown
+
+  - id: stump_rf_3
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: xfish
+    project: tree-trunk-detection-ozzdk
+    version: 1
+    target_class: Stump
+    status: Approved
+    expected_labels: [trunk]
+    expected_images: 1000
+    license: Unknown
+
+  - id: stump_rf_4
+    enabled: true
+    priority: P1
+    provider: roboflow
+    workspace: yolov8detect
+    project: trunk_model
+    version: 1
+    target_class: Stump
+    status: Approved
+    expected_labels: [trunk]
+    expected_images: 1000
     license: Unknown
 
   - id: background_1

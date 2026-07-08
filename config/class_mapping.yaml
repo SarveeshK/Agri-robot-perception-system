@@ -48,6 +48,10 @@ classes:
         - trees-stump
       roboflow_tree-trunk-train-luh1h:
         - trunk
+      roboflow_tree-trunk-detection-ozzdk:
+        - trunk
+      roboflow_trunk_model:
+        - Trunk
       kaggle:
         - stump
         - tree_stump
@@ -84,6 +88,15 @@ classes:
         - Gravel
       roboflow_pebbles-detection-44shp:
         - pebble
+      roboflow_pebbles-detection:
+        - pebble
+      roboflow_stones-ph5qj:
+        - Bluestone
+        - Brownstone
+        - Jadestone
+        - Purplestone
+        - Turquoisestone
+        - Yellowstone
       kaggle:
         - stone
         - pebble

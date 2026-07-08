@@ -92,8 +92,17 @@ def download(args) -> None:
     # Resolve API key
     api_key = args.api_key or os.environ.get("ROBOFLOW_API_KEY")
     if not api_key:
+        env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+        if os.path.exists(env_path):
+            with open(env_path, 'r') as f:
+                for line in f:
+                    if line.startswith("ROBOFLOW_API_KEY="):
+                        api_key = line.strip().split("=", 1)[1].strip('"\'')
+                        break
+                        
+    if not api_key:
         print("ERROR: Roboflow API key not provided.")
-        print("Use --api-key YOUR_KEY or set the ROBOFLOW_API_KEY environment variable.")
+        print("Use --api-key YOUR_KEY, set the ROBOFLOW_API_KEY env var, or add it to the .env file.")
         print("Get a free key at: https://roboflow.com")
         sys.exit(1)
 

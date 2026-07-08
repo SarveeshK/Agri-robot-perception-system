@@ -72,6 +72,9 @@ def main():
         
         cmd = [sys.executable, "scripts/download_dataset.py", "--provider", provider]
         
+        expected_limit = ds.get("expected_images", 200)
+        cmd.extend(["--limit", str(expected_limit)])
+        
         if provider == "roboflow":
             cmd.extend(["--url", f"https://universe.roboflow.com/{ds['workspace']}/{ds['project']}"])
             if "version" in ds and ds["version"] != "latest":
