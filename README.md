@@ -4,6 +4,23 @@ A modular, real-time AI perception system for an autonomous agricultural robot. 
 
 ---
 
+## 🔒 Development Rule: Architecture Frozen (v1.1.0)
+The architecture is frozen. New pull requests must satisfy one of:
+* Dataset improvement
+* Annotation improvement
+* Training improvement
+* Evaluation improvement
+* Hardware integration
+* Robot integration
+* Bug fix
+
+Architectural changes require a documented justification:
+- reproducibility issue
+- deployment blocker
+- critical bug
+
+---
+
 ## Project Architecture
 
 ```

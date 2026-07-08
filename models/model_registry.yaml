@@ -1,0 +1,41 @@
+# Agri-Robot Perception System Model Registry
+# This file tracks the exact model weights used in each deployment state.
+
+# Current active model running on the robot in production
+production:
+  model: null
+  status: production
+  promoted_from: field_test
+  reason: null
+  approved_by: null
+  date: null
+
+# Current model deployed for field testing
+field_test:
+  model: null
+  status: field_test
+  promoted_from: baseline
+  reason: null
+  approved_by: null
+  date: null
+
+# Current best offline model passing all deployment gating metrics
+baseline:
+  model: null
+  status: baseline
+  promoted_from: candidate
+  reason: null
+  approved_by: null
+  date: null
+
+# Currently evaluating
+candidate:
+  model: exp002  # Target the Exp002 sanity check run
+  status: candidate
+  promoted_from: training
+  reason:
+    human_recall: pending
+    map50: pending
+    fps: pending
+  approved_by: null
+  date: 2026-07-08
