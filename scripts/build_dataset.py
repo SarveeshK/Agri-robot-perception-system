@@ -74,6 +74,8 @@ def main():
         
         expected_limit = ds.get("expected_images", 200)
         cmd.extend(["--limit", str(expected_limit)])
+        if "target_class" in ds:
+            cmd.extend(["--target", ds["target_class"]])
         
         if provider == "roboflow":
             cmd.extend(["--url", f"https://universe.roboflow.com/{ds['workspace']}/{ds['project']}"])

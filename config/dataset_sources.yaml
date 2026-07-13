@@ -46,7 +46,7 @@ active_datasets:
     target_class: Human
     status: Approved
     expected_labels: [Person]
-    expected_images: 3000
+    expected_images: 500
     license: CC BY 4.0
 
   - id: openimages_stump

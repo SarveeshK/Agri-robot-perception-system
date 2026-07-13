@@ -42,14 +42,14 @@ def train_model(args):
     results = model.train(
         data=data_path,
         epochs=args.epochs,
-        batch=-1,  # Auto batching
+        batch=16,  # Hardcoded small batch to prevent memory allocation errors (auto-batching crashes CPUs)
         imgsz=640,
         patience=20,
         seed=42,
         cos_lr=True,
-        workers=8, # standard for YOLO
+        workers=2, # Reduced workers to prevent 'No space left on device' / '/dev/shm' / 'Cannot allocate memory' errors
         fraction=args.fraction, # allows subsampling dataset for fast CPU tests
-        cache=True, # Significantly speeds up CPU training by caching dataset in RAM
+        cache=False, # Disabled: RAM caching was causing OOM (Out of Memory) kills on the laptop
         amp=True, # Automatic Mixed Precision (if supported by hardware)
         project=os.path.abspath("outputs/experiments"),
         name=exp_id,

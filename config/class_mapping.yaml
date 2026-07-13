@@ -38,8 +38,7 @@ classes:
   Stump:
     id: 1
     source_labels:
-      openimages:
-        - Tree stump
+      openimages: []
       roboflow:
         - Tree stump
         - Stump
