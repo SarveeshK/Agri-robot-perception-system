@@ -1,0 +1,48 @@
+zones:
+  wake_distance: 2.5
+  stop_distance: 1.5
+  resume_distance: 2.8
+
+filters:
+  minimum_cluster_pixels: 150
+  minimum_cluster_area_cm2: 100
+  trigger_frames: 3
+
+confidence:
+  human: 0.40      
+  obstacle: 0.55   
+  warning: 0.35    
+
+action_mapping:
+  human:
+    threat: Critical
+    action: Emergency_Stop
+  tree:
+    threat: High
+    action: Avoid
+  rock:
+    threat: High
+    action: Avoid
+  stump:
+    threat: High
+    action: Avoid
+  fence:
+    threat: High
+    action: Boundary_Stop
+  bush:
+    threat: Medium
+    action: Slow_Avoid
+  small_stone:
+    threat: Medium
+    action: Slow
+  weed:
+    threat: Low
+    action: Ignore
+
+timing:
+  confirm_stop_frames: 3
+  recovery_time_seconds: 2.0
+
+logging:
+  level: INFO
+  save_images: false
