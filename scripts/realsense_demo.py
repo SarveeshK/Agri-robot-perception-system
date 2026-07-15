@@ -6,51 +6,65 @@ import sys
 
 def main():
     print("==========================================")
-    print(" Agri-Robot RealSense Live Demo")
+    print(" Agri-Robot Dual-Model Ensemble Demo")
     print("==========================================")
     
+    # 1. Load your custom agricultural model
     model_path = "outputs/experiments/exp005/weights/best.pt"
-    print(f"Loading YOLOv8 Model from {model_path}...")
+    print(f"Loading Custom YOLOv8 Model from {model_path}...")
     try:
-        model = YOLO(model_path)
+        model_agri = YOLO(model_path)
     except Exception as e:
-        print(f"Failed to load model: {e}")
+        print(f"Failed to load custom model: {e}")
         sys.exit(1)
+        
+    # 2. Load the base COCO model for cars, trucks, and animals
+    print(f"Loading Base YOLOv8 Nano for Cars/Animals...")
+    model_coco = YOLO("yolov8n.pt")
+    
+    # COCO Class Indices for relevant agricultural/road obstacles:
+    # 2: car, 3: motorcycle, 5: bus, 7: truck
+    # 15: bird, 16: cat, 17: dog, 18: horse, 19: sheep, 20: cow
+    coco_filter_classes = [2, 3, 5, 7, 15, 16, 17, 18, 19, 20]
     
     print("Initializing Intel RealSense Camera...")
     pipeline = rs.pipeline()
     config = rs.config()
     
-    # Force RealSense to give us the Color feed (ignoring Infrared/Depth for this demo)
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    # Force RealSense to give us HD resolution
+    config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
     
     try:
         pipeline.start(config)
-        print("\n✅ RealSense Camera Connected and Streaming!")
-        print("👉 Press 'q' or 'ESC' on your keyboard to close the video window.\n")
+        print("\n✅ RealSense Camera Connected!")
+        print("⚡ Dual-Model Ensemble Active. FPS will drop to ~10-15.")
+        print("👉 Press 'q' or 'ESC' to close the video window.\n")
         
         while True:
-            # Grab frames from the RealSense hardware
             frames = pipeline.wait_for_frames()
             color_frame = frames.get_color_frame()
             
             if not color_frame:
                 continue
                 
-            # Convert raw RealSense data into a standard OpenCV image array
             color_image = np.asanyarray(color_frame.get_data())
             
-            # Run YOLOv8 inference (verbose=False keeps the terminal clean)
-            # Lowered conf to 0.25 to detect harder objects in harsh lighting
-            results = model(color_image, conf=0.25, verbose=False)
+            # Run Inference on Custom Model (Rocks, Trees, Fences, etc.)
+            res_agri = model_agri(color_image, conf=0.25, verbose=False)
             
-            # Draw the colorful bounding boxes on the image
-            annotated_frame = results[0].plot()
+            # Run Inference on Base Model (Filtered to Cars and Farm Animals only)
+            res_coco = model_coco(color_image, conf=0.25, classes=coco_filter_classes, verbose=False)
+            
+            # Plot custom agricultural boxes first
+            annotated_frame = res_agri[0].plot()
+            
+            # Clever trick: Overwrite the base image of the COCO results so it draws ON TOP of the first boxes
+            res_coco[0].orig_img = annotated_frame
+            final_frame = res_coco[0].plot()
             
             # Pop open the video window
-            cv2.imshow("Agri-Robot Perception (Intel RealSense)", annotated_frame)
+            cv2.imshow("Agri-Robot Dual-Model Perception", final_frame)
             
-            # Break loop if user presses 'q'
             key = cv2.waitKey(1)
             if key == ord('q') or key == 27:
                 break
