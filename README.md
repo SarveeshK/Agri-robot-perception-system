@@ -1,4 +1,4 @@
-# AgriVision Perception System 🚜👁️
+# AgriVision Perception System 
 
 A production-ready, real-time AI perception system engineered for autonomous agricultural robots. This system integrates an Intel RealSense D456 depth camera with a custom-trained YOLOv8 Nano model to detect agricultural obstacles in unstructured farm environments and provide precise 3D distance measurements for safe navigation.
 
